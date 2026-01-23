@@ -15,7 +15,7 @@ from homeassistant.util import Throttle
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS = [Platform.BINARY_SENSOR, Platform.SENSOR, Platform.SWITCH]
+PLATFORMS = [Platform.BINARY_SENSOR, Platform.NUMBER, Platform.SELECT, Platform.SENSOR, Platform.SWITCH]
 DOMAIN = "danfoss_air"
 
 MIN_TIME_BETWEEN_UPDATES = timedelta(seconds=60)
@@ -71,6 +71,12 @@ class DanfossAir:
         self._data[ReadCommand.extractTemperature] = self._client.command(
             ReadCommand.extractTemperature
         )
+        self._data[ReadCommand.roomTemperature] = self._client.command(
+            ReadCommand.roomTemperature
+        )
+        self._data[ReadCommand.roomTemperatureCalculated] = self._client.command(
+            ReadCommand.roomTemperatureCalculated
+        )
         self._data[ReadCommand.humidity] = round(
             self._client.command(ReadCommand.humidity), 2
         )
@@ -93,6 +99,9 @@ class DanfossAir:
         self._data[ReadCommand.bypass] = self._client.command(ReadCommand.bypass)
         self._data[ReadCommand.automatic_bypass] = self._client.command(
             ReadCommand.automatic_bypass
+        )
+        self._data[ReadCommand.operation_mode] = self._client.command(
+            ReadCommand.operation_mode
         )
 
         _LOGGER.debug("Done fetching data from Danfoss Air CCM module")

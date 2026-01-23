@@ -58,6 +58,20 @@ def setup_platform(
             SensorStateClass.MEASUREMENT,
         ],
         [
+            "Danfoss Air Room Temperature",
+            UnitOfTemperature.CELSIUS,
+            ReadCommand.roomTemperature,
+            SensorDeviceClass.TEMPERATURE,
+            SensorStateClass.MEASUREMENT,
+        ],
+        [
+            "Danfoss Air Room Temperature Calculated",
+            UnitOfTemperature.CELSIUS,
+            ReadCommand.roomTemperatureCalculated,
+            SensorDeviceClass.TEMPERATURE,
+            SensorStateClass.MEASUREMENT,
+        ],
+        [
             "Danfoss Air Remaining Filter",
             PERCENTAGE,
             ReadCommand.filterPercent,
