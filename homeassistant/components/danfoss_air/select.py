@@ -1,7 +1,5 @@
 """Support for Danfoss Air HRV select entities."""
 
-from __future__ import annotations
-
 import logging
 
 from pydanfossair.commands import ReadCommand, UpdateCommand
