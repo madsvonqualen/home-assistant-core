@@ -52,6 +52,7 @@ class DanfossAirFanStep(NumberEntity):
         self._data = data
         self._attr_name = "Danfoss Air Fan Step"
         self._attr_native_value = None
+        self._attr_unique_id = f"{data.host}-fan_step"
 
     def set_native_value(self, value: float) -> None:
         """Set the fan step."""
@@ -68,6 +69,7 @@ class DanfossAirFanStep(NumberEntity):
     def update(self) -> None:
         """Update the number entity's state."""
         self._data.update()
+        self._attr_available = self._data.available
 
         fan_step_value = self._data.get_value(ReadCommand.fan_step)
         if fan_step_value is None:

@@ -1,5 +1,6 @@
 """Support for the for Danfoss Air HRV sensors."""
 
+from dataclasses import dataclass
 import logging
 
 from pydanfossair.commands import ReadCommand
@@ -7,9 +8,15 @@ from pydanfossair.commands import ReadCommand
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
+    SensorEntityDescription,
     SensorStateClass,
 )
-from homeassistant.const import PERCENTAGE, REVOLUTIONS_PER_MINUTE, UnitOfTemperature
+from homeassistant.const import (
+    PERCENTAGE,
+    REVOLUTIONS_PER_MINUTE,
+    EntityCategory,
+    UnitOfTemperature,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
@@ -17,6 +24,123 @@ from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 from . import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
+
+
+@dataclass(frozen=True, kw_only=True)
+class DanfossAirSensorEntityDescription(SensorEntityDescription):
+    """Describes a Danfoss Air sensor entity."""
+
+    command: ReadCommand
+
+
+SENSOR_TYPES: tuple[DanfossAirSensorEntityDescription, ...] = (
+    DanfossAirSensorEntityDescription(
+        key="exhaust_temperature",
+        name="Danfoss Air Exhaust Temperature",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+        command=ReadCommand.exhaustTemperature,
+    ),
+    DanfossAirSensorEntityDescription(
+        key="outdoor_temperature",
+        name="Danfoss Air Outdoor Temperature",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+        command=ReadCommand.outdoorTemperature,
+    ),
+    DanfossAirSensorEntityDescription(
+        key="supply_temperature",
+        name="Danfoss Air Supply Temperature",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+        command=ReadCommand.supplyTemperature,
+    ),
+    DanfossAirSensorEntityDescription(
+        key="extract_temperature",
+        name="Danfoss Air Extract Temperature",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+        command=ReadCommand.extractTemperature,
+    ),
+    DanfossAirSensorEntityDescription(
+        key="room_temperature",
+        name="Danfoss Air Room Temperature",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+        command=ReadCommand.roomTemperature,
+    ),
+    DanfossAirSensorEntityDescription(
+        key="room_temperature_calculated",
+        name="Danfoss Air Room Temperature Calculated",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
+        command=ReadCommand.roomTemperatureCalculated,
+    ),
+    DanfossAirSensorEntityDescription(
+        key="remaining_filter",
+        name="Danfoss Air Remaining Filter",
+        native_unit_of_measurement=PERCENTAGE,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=0,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        command=ReadCommand.filterPercent,
+    ),
+    DanfossAirSensorEntityDescription(
+        key="humidity",
+        name="Danfoss Air Humidity",
+        native_unit_of_measurement=PERCENTAGE,
+        device_class=SensorDeviceClass.HUMIDITY,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=0,
+        command=ReadCommand.humidity,
+    ),
+    DanfossAirSensorEntityDescription(
+        key="fan_step",
+        name="Danfoss Air Fan Step",
+        native_unit_of_measurement=PERCENTAGE,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=0,
+        command=ReadCommand.fan_step,
+    ),
+    DanfossAirSensorEntityDescription(
+        key="exhaust_fan_speed",
+        name="Danfoss Air Exhaust Fan Speed",
+        native_unit_of_measurement=REVOLUTIONS_PER_MINUTE,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=0,
+        command=ReadCommand.exhaust_fan_speed,
+    ),
+    DanfossAirSensorEntityDescription(
+        key="supply_fan_speed",
+        name="Danfoss Air Supply Fan Speed",
+        native_unit_of_measurement=REVOLUTIONS_PER_MINUTE,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=0,
+        command=ReadCommand.supply_fan_speed,
+    ),
+    DanfossAirSensorEntityDescription(
+        key="dial_battery",
+        name="Danfoss Air Dial Battery",
+        native_unit_of_measurement=PERCENTAGE,
+        device_class=SensorDeviceClass.BATTERY,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=0,
+        entity_category=EntityCategory.DIAGNOSTIC,
+        command=ReadCommand.battery_percent,
+    ),
+)
 
 
 def setup_platform(
@@ -28,108 +152,21 @@ def setup_platform(
     """Set up the available Danfoss Air sensors etc."""
     data = hass.data[DOMAIN]
 
-    sensors = [
-        [
-            "Danfoss Air Exhaust Temperature",
-            UnitOfTemperature.CELSIUS,
-            ReadCommand.exhaustTemperature,
-            SensorDeviceClass.TEMPERATURE,
-            SensorStateClass.MEASUREMENT,
-        ],
-        [
-            "Danfoss Air Outdoor Temperature",
-            UnitOfTemperature.CELSIUS,
-            ReadCommand.outdoorTemperature,
-            SensorDeviceClass.TEMPERATURE,
-            SensorStateClass.MEASUREMENT,
-        ],
-        [
-            "Danfoss Air Supply Temperature",
-            UnitOfTemperature.CELSIUS,
-            ReadCommand.supplyTemperature,
-            SensorDeviceClass.TEMPERATURE,
-            SensorStateClass.MEASUREMENT,
-        ],
-        [
-            "Danfoss Air Extract Temperature",
-            UnitOfTemperature.CELSIUS,
-            ReadCommand.extractTemperature,
-            SensorDeviceClass.TEMPERATURE,
-            SensorStateClass.MEASUREMENT,
-        ],
-        [
-            "Danfoss Air Room Temperature",
-            UnitOfTemperature.CELSIUS,
-            ReadCommand.roomTemperature,
-            SensorDeviceClass.TEMPERATURE,
-            SensorStateClass.MEASUREMENT,
-        ],
-        [
-            "Danfoss Air Room Temperature Calculated",
-            UnitOfTemperature.CELSIUS,
-            ReadCommand.roomTemperatureCalculated,
-            SensorDeviceClass.TEMPERATURE,
-            SensorStateClass.MEASUREMENT,
-        ],
-        [
-            "Danfoss Air Remaining Filter",
-            PERCENTAGE,
-            ReadCommand.filterPercent,
-            None,
-            None,
-        ],
-        [
-            "Danfoss Air Humidity",
-            PERCENTAGE,
-            ReadCommand.humidity,
-            SensorDeviceClass.HUMIDITY,
-            SensorStateClass.MEASUREMENT,
-        ],
-        ["Danfoss Air Fan Step", PERCENTAGE, ReadCommand.fan_step, None, None],
-        [
-            "Danfoss Air Exhaust Fan Speed",
-            REVOLUTIONS_PER_MINUTE,
-            ReadCommand.exhaust_fan_speed,
-            None,
-            None,
-        ],
-        [
-            "Danfoss Air Supply Fan Speed",
-            REVOLUTIONS_PER_MINUTE,
-            ReadCommand.supply_fan_speed,
-            None,
-            None,
-        ],
-        [
-            "Danfoss Air Dial Battery",
-            PERCENTAGE,
-            ReadCommand.battery_percent,
-            SensorDeviceClass.BATTERY,
-            None,
-        ],
-    ]
-
     add_entities(
-        (
-            DanfossAir(data, sensor[0], sensor[1], sensor[2], sensor[3], sensor[4])
-            for sensor in sensors
-        ),
-        True,
+        (DanfossAir(data, description) for description in SENSOR_TYPES), True
     )
 
 
 class DanfossAir(SensorEntity):
     """Representation of a Sensor."""
 
-    def __init__(self, data, name, sensor_unit, sensor_type, device_class, state_class):
+    entity_description: DanfossAirSensorEntityDescription
+
+    def __init__(self, data, description: DanfossAirSensorEntityDescription) -> None:
         """Initialize the sensor."""
+        self.entity_description = description
         self._data = data
-        self._attr_name = name
-        self._attr_native_value = None
-        self._type = sensor_type
-        self._attr_native_unit_of_measurement = sensor_unit
-        self._attr_device_class = device_class
-        self._attr_state_class = state_class
+        self._attr_unique_id = f"{data.host}-{description.key}"
 
     def update(self) -> None:
         """Update the new state of the sensor.
@@ -138,7 +175,15 @@ class DanfossAir(SensorEntity):
         communication with the Air CCM.
         """
         self._data.update()
+        self._attr_available = self._data.available
 
-        self._attr_native_value = self._data.get_value(self._type)
-        if self._attr_native_value is None:
-            _LOGGER.debug("Could not get data for %s", self._type)
+        value = self._data.get_value(self.entity_description.command)
+        if value is None:
+            _LOGGER.debug("Could not get data for %s", self.entity_description.key)
+        elif self.entity_description.command is ReadCommand.battery_percent:
+            # The Air Dial reports its battery level as a plain 0-100
+            # percentage, but the library scales the byte by 100/255;
+            # undo that to recover the actual percentage.
+            value = round(value * 255 / 100)
+
+        self._attr_native_value = value

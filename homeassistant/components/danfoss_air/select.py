@@ -52,6 +52,7 @@ class DanfossAirOperationMode(SelectEntity):
         self._data = data
         self._attr_name = "Danfoss Air Operation Mode"
         self._attr_current_option = None
+        self._attr_unique_id = f"{data.host}-operation_mode"
 
     @property
     def current_option(self) -> str | None:
@@ -72,6 +73,7 @@ class DanfossAirOperationMode(SelectEntity):
     def update(self) -> None:
         """Update the select entity's state."""
         self._data.update()
+        self._attr_available = self._data.available
 
         mode_value = self._data.get_value(ReadCommand.operation_mode)
         if mode_value is None:

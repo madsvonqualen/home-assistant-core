@@ -27,13 +27,14 @@ def setup_platform(
             "Danfoss Air Bypass Active",
             ReadCommand.bypass,
             BinarySensorDeviceClass.OPENING,
+            "bypass_active",
         ],
-        ["Danfoss Air Away Mode Active", ReadCommand.away_mode, None],
+        ["Danfoss Air Away Mode Active", ReadCommand.away_mode, None, "away_mode"],
     ]
 
     add_entities(
         (
-            DanfossAirBinarySensor(data, sensor[0], sensor[1], sensor[2])
+            DanfossAirBinarySensor(data, sensor[0], sensor[1], sensor[2], sensor[3])
             for sensor in sensors
         ),
         True,
@@ -43,15 +44,17 @@ def setup_platform(
 class DanfossAirBinarySensor(BinarySensorEntity):
     """Representation of a Danfoss Air binary sensor."""
 
-    def __init__(self, data, name, sensor_type, device_class):
+    def __init__(self, data, name, sensor_type, device_class, key):
         """Initialize the Danfoss Air binary sensor."""
         self._data = data
         self._attr_name = name
         self._type = sensor_type
         self._attr_device_class = device_class
+        self._attr_unique_id = f"{data.host}-{key}"
 
     def update(self) -> None:
         """Fetch new state data for the sensor."""
         self._data.update()
+        self._attr_available = self._data.available
 
         self._attr_is_on = self._data.get_value(self._type)
