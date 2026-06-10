@@ -74,13 +74,13 @@ class DanfossAirFanStep(NumberEntity):
             _LOGGER.debug("Could not get fan step data")
             return
 
-        # The fan_step value might be a percentage or direct step value
-        # Convert if necessary
-        if isinstance(fan_step_value, (int, float)):
-            # If it's a percentage (0-100), convert to step (1-10)
-            if fan_step_value > 10:
-                self._attr_native_value = max(1, min(10, int(fan_step_value / 10)))
-            else:
-                self._attr_native_value = int(fan_step_value)
-        else:
-            _LOGGER.debug("Unexpected fan step value type: %s", type(fan_step_value))
+        # The unit reports the current airflow as a percentage where each
+        # fan step corresponds to 10% (step 1 = 10%, ..., step 10 = 100%).
+        step = round(fan_step_value / 10)
+        if not 1 <= step <= 10:
+            # The unit briefly reports transitional values (e.g. 0) right
+            # after a step change; keep the last known step instead.
+            _LOGGER.debug("Ignoring out of range fan step value: %s", fan_step_value)
+            return
+
+        self._attr_native_value = step
