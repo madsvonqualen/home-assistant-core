@@ -1,5 +1,6 @@
 """Support for the for Danfoss Air HRV sensors."""
 
+from dataclasses import dataclass
 import logging
 
 from pydanfossair.commands import ReadCommand
@@ -7,6 +8,7 @@ from pydanfossair.commands import ReadCommand
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
+    SensorEntityDescription,
     SensorStateClass,
 )
 from homeassistant.const import PERCENTAGE, REVOLUTIONS_PER_MINUTE, UnitOfTemperature
@@ -19,6 +21,88 @@ from . import DOMAIN
 _LOGGER = logging.getLogger(__name__)
 
 
+@dataclass(frozen=True, kw_only=True)
+class DanfossAirSensorEntityDescription(SensorEntityDescription):
+    """Describes a Danfoss Air sensor entity."""
+
+    command: ReadCommand
+
+
+SENSOR_TYPES: tuple[DanfossAirSensorEntityDescription, ...] = (
+    DanfossAirSensorEntityDescription(
+        key="exhaust_temperature",
+        name="Danfoss Air Exhaust Temperature",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        command=ReadCommand.exhaustTemperature,
+    ),
+    DanfossAirSensorEntityDescription(
+        key="outdoor_temperature",
+        name="Danfoss Air Outdoor Temperature",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        command=ReadCommand.outdoorTemperature,
+    ),
+    DanfossAirSensorEntityDescription(
+        key="supply_temperature",
+        name="Danfoss Air Supply Temperature",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        command=ReadCommand.supplyTemperature,
+    ),
+    DanfossAirSensorEntityDescription(
+        key="extract_temperature",
+        name="Danfoss Air Extract Temperature",
+        native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        device_class=SensorDeviceClass.TEMPERATURE,
+        state_class=SensorStateClass.MEASUREMENT,
+        command=ReadCommand.extractTemperature,
+    ),
+    DanfossAirSensorEntityDescription(
+        key="remaining_filter",
+        name="Danfoss Air Remaining Filter",
+        native_unit_of_measurement=PERCENTAGE,
+        command=ReadCommand.filterPercent,
+    ),
+    DanfossAirSensorEntityDescription(
+        key="humidity",
+        name="Danfoss Air Humidity",
+        native_unit_of_measurement=PERCENTAGE,
+        device_class=SensorDeviceClass.HUMIDITY,
+        state_class=SensorStateClass.MEASUREMENT,
+        command=ReadCommand.humidity,
+    ),
+    DanfossAirSensorEntityDescription(
+        key="fan_step",
+        name="Danfoss Air Fan Step",
+        native_unit_of_measurement=PERCENTAGE,
+        command=ReadCommand.fan_step,
+    ),
+    DanfossAirSensorEntityDescription(
+        key="exhaust_fan_speed",
+        name="Danfoss Air Exhaust Fan Speed",
+        native_unit_of_measurement=REVOLUTIONS_PER_MINUTE,
+        command=ReadCommand.exhaust_fan_speed,
+    ),
+    DanfossAirSensorEntityDescription(
+        key="supply_fan_speed",
+        name="Danfoss Air Supply Fan Speed",
+        native_unit_of_measurement=REVOLUTIONS_PER_MINUTE,
+        command=ReadCommand.supply_fan_speed,
+    ),
+    DanfossAirSensorEntityDescription(
+        key="dial_battery",
+        name="Danfoss Air Dial Battery",
+        native_unit_of_measurement=PERCENTAGE,
+        device_class=SensorDeviceClass.BATTERY,
+        command=ReadCommand.battery_percent,
+    ),
+)
+
+
 def setup_platform(
     hass: HomeAssistant,
     config: ConfigType,
@@ -28,121 +112,19 @@ def setup_platform(
     """Set up the available Danfoss Air sensors etc."""
     data = hass.data[DOMAIN]
 
-    sensors = [
-        [
-            "Danfoss Air Exhaust Temperature",
-            UnitOfTemperature.CELSIUS,
-            ReadCommand.exhaustTemperature,
-            SensorDeviceClass.TEMPERATURE,
-            SensorStateClass.MEASUREMENT,
-            "exhaust_temperature",
-        ],
-        [
-            "Danfoss Air Outdoor Temperature",
-            UnitOfTemperature.CELSIUS,
-            ReadCommand.outdoorTemperature,
-            SensorDeviceClass.TEMPERATURE,
-            SensorStateClass.MEASUREMENT,
-            "outdoor_temperature",
-        ],
-        [
-            "Danfoss Air Supply Temperature",
-            UnitOfTemperature.CELSIUS,
-            ReadCommand.supplyTemperature,
-            SensorDeviceClass.TEMPERATURE,
-            SensorStateClass.MEASUREMENT,
-            "supply_temperature",
-        ],
-        [
-            "Danfoss Air Extract Temperature",
-            UnitOfTemperature.CELSIUS,
-            ReadCommand.extractTemperature,
-            SensorDeviceClass.TEMPERATURE,
-            SensorStateClass.MEASUREMENT,
-            "extract_temperature",
-        ],
-        [
-            "Danfoss Air Remaining Filter",
-            PERCENTAGE,
-            ReadCommand.filterPercent,
-            None,
-            None,
-            "remaining_filter",
-        ],
-        [
-            "Danfoss Air Humidity",
-            PERCENTAGE,
-            ReadCommand.humidity,
-            SensorDeviceClass.HUMIDITY,
-            SensorStateClass.MEASUREMENT,
-            "humidity",
-        ],
-        [
-            "Danfoss Air Fan Step",
-            PERCENTAGE,
-            ReadCommand.fan_step,
-            None,
-            None,
-            "fan_step",
-        ],
-        [
-            "Danfoss Air Exhaust Fan Speed",
-            REVOLUTIONS_PER_MINUTE,
-            ReadCommand.exhaust_fan_speed,
-            None,
-            None,
-            "exhaust_fan_speed",
-        ],
-        [
-            "Danfoss Air Supply Fan Speed",
-            REVOLUTIONS_PER_MINUTE,
-            ReadCommand.supply_fan_speed,
-            None,
-            None,
-            "supply_fan_speed",
-        ],
-        [
-            "Danfoss Air Dial Battery",
-            PERCENTAGE,
-            ReadCommand.battery_percent,
-            SensorDeviceClass.BATTERY,
-            None,
-            "dial_battery",
-        ],
-    ]
-
-    add_entities(
-        (
-            DanfossAir(
-                data,
-                sensor[0],
-                sensor[1],
-                sensor[2],
-                sensor[3],
-                sensor[4],
-                sensor[5],
-            )
-            for sensor in sensors
-        ),
-        True,
-    )
+    add_entities((DanfossAir(data, description) for description in SENSOR_TYPES), True)
 
 
 class DanfossAir(SensorEntity):
     """Representation of a Sensor."""
 
-    def __init__(
-        self, data, name, sensor_unit, sensor_type, device_class, state_class, key
-    ):
+    entity_description: DanfossAirSensorEntityDescription
+
+    def __init__(self, data, description: DanfossAirSensorEntityDescription) -> None:
         """Initialize the sensor."""
+        self.entity_description = description
         self._data = data
-        self._attr_name = name
-        self._attr_unique_id = key
-        self._attr_native_value = None
-        self._type = sensor_type
-        self._attr_native_unit_of_measurement = sensor_unit
-        self._attr_device_class = device_class
-        self._attr_state_class = state_class
+        self._attr_unique_id = description.key
 
     def update(self) -> None:
         """Update the new state of the sensor.
@@ -153,6 +135,6 @@ class DanfossAir(SensorEntity):
         self._data.update()
         self._attr_available = self._data.available
 
-        self._attr_native_value = self._data.get_value(self._type)
+        self._attr_native_value = self._data.get_value(self.entity_description.command)
         if self._attr_native_value is None:
-            _LOGGER.debug("Could not get data for %s", self._type)
+            _LOGGER.debug("Could not get data for %s", self.entity_description.key)
