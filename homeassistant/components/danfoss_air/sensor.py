@@ -11,7 +11,12 @@ from homeassistant.components.sensor import (
     SensorEntityDescription,
     SensorStateClass,
 )
-from homeassistant.const import PERCENTAGE, REVOLUTIONS_PER_MINUTE, UnitOfTemperature
+from homeassistant.const import (
+    PERCENTAGE,
+    REVOLUTIONS_PER_MINUTE,
+    EntityCategory,
+    UnitOfTemperature,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
@@ -35,6 +40,7 @@ SENSOR_TYPES: tuple[DanfossAirSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
         command=ReadCommand.exhaustTemperature,
     ),
     DanfossAirSensorEntityDescription(
@@ -43,6 +49,7 @@ SENSOR_TYPES: tuple[DanfossAirSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
         command=ReadCommand.outdoorTemperature,
     ),
     DanfossAirSensorEntityDescription(
@@ -51,6 +58,7 @@ SENSOR_TYPES: tuple[DanfossAirSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
         command=ReadCommand.supplyTemperature,
     ),
     DanfossAirSensorEntityDescription(
@@ -59,12 +67,16 @@ SENSOR_TYPES: tuple[DanfossAirSensorEntityDescription, ...] = (
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
         command=ReadCommand.extractTemperature,
     ),
     DanfossAirSensorEntityDescription(
         key="remaining_filter",
         name="Danfoss Air Remaining Filter",
         native_unit_of_measurement=PERCENTAGE,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=0,
+        entity_category=EntityCategory.DIAGNOSTIC,
         command=ReadCommand.filterPercent,
     ),
     DanfossAirSensorEntityDescription(
@@ -73,24 +85,31 @@ SENSOR_TYPES: tuple[DanfossAirSensorEntityDescription, ...] = (
         native_unit_of_measurement=PERCENTAGE,
         device_class=SensorDeviceClass.HUMIDITY,
         state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=0,
         command=ReadCommand.humidity,
     ),
     DanfossAirSensorEntityDescription(
         key="fan_step",
         name="Danfoss Air Fan Step",
         native_unit_of_measurement=PERCENTAGE,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=0,
         command=ReadCommand.fan_step,
     ),
     DanfossAirSensorEntityDescription(
         key="exhaust_fan_speed",
         name="Danfoss Air Exhaust Fan Speed",
         native_unit_of_measurement=REVOLUTIONS_PER_MINUTE,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=0,
         command=ReadCommand.exhaust_fan_speed,
     ),
     DanfossAirSensorEntityDescription(
         key="supply_fan_speed",
         name="Danfoss Air Supply Fan Speed",
         native_unit_of_measurement=REVOLUTIONS_PER_MINUTE,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=0,
         command=ReadCommand.supply_fan_speed,
     ),
     DanfossAirSensorEntityDescription(
@@ -98,6 +117,9 @@ SENSOR_TYPES: tuple[DanfossAirSensorEntityDescription, ...] = (
         name="Danfoss Air Dial Battery",
         native_unit_of_measurement=PERCENTAGE,
         device_class=SensorDeviceClass.BATTERY,
+        state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=0,
+        entity_category=EntityCategory.DIAGNOSTIC,
         command=ReadCommand.battery_percent,
     ),
 )
