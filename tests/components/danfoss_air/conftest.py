@@ -26,6 +26,15 @@ READ_VALUES: dict[str, float | bool] = {
 }
 
 
+def _read_all() -> dict[ReadCommand, float | bool]:
+    """Return the canned value of every register the library knows."""
+    return {
+        command: READ_VALUES[command.name]
+        for command in ReadCommand
+        if command.name in READ_VALUES
+    }
+
+
 def _command(command: ReadCommand | UpdateCommand) -> float | bool:
     """Answer a read with its canned value and a write with its read-back state."""
     if isinstance(command, ReadCommand):
@@ -41,4 +50,5 @@ def mock_danfoss_client() -> Generator[MagicMock]:
     ) as mock_client:
         client = mock_client.return_value
         client.command.side_effect = _command
+        client.read_all.side_effect = _read_all
         yield client
