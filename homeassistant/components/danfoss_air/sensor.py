@@ -35,6 +35,7 @@ def setup_platform(
             ReadCommand.exhaustTemperature,
             SensorDeviceClass.TEMPERATURE,
             SensorStateClass.MEASUREMENT,
+            "exhaust_temperature",
         ],
         [
             "Danfoss Air Outdoor Temperature",
@@ -42,6 +43,7 @@ def setup_platform(
             ReadCommand.outdoorTemperature,
             SensorDeviceClass.TEMPERATURE,
             SensorStateClass.MEASUREMENT,
+            "outdoor_temperature",
         ],
         [
             "Danfoss Air Supply Temperature",
@@ -49,6 +51,7 @@ def setup_platform(
             ReadCommand.supplyTemperature,
             SensorDeviceClass.TEMPERATURE,
             SensorStateClass.MEASUREMENT,
+            "supply_temperature",
         ],
         [
             "Danfoss Air Extract Temperature",
@@ -56,6 +59,7 @@ def setup_platform(
             ReadCommand.extractTemperature,
             SensorDeviceClass.TEMPERATURE,
             SensorStateClass.MEASUREMENT,
+            "extract_temperature",
         ],
         [
             "Danfoss Air Remaining Filter",
@@ -63,6 +67,7 @@ def setup_platform(
             ReadCommand.filterPercent,
             None,
             None,
+            "remaining_filter",
         ],
         [
             "Danfoss Air Humidity",
@@ -70,14 +75,23 @@ def setup_platform(
             ReadCommand.humidity,
             SensorDeviceClass.HUMIDITY,
             SensorStateClass.MEASUREMENT,
+            "humidity",
         ],
-        ["Danfoss Air Fan Step", PERCENTAGE, ReadCommand.fan_step, None, None],
+        [
+            "Danfoss Air Fan Step",
+            PERCENTAGE,
+            ReadCommand.fan_step,
+            None,
+            None,
+            "fan_step",
+        ],
         [
             "Danfoss Air Exhaust Fan Speed",
             REVOLUTIONS_PER_MINUTE,
             ReadCommand.exhaust_fan_speed,
             None,
             None,
+            "exhaust_fan_speed",
         ],
         [
             "Danfoss Air Supply Fan Speed",
@@ -85,6 +99,7 @@ def setup_platform(
             ReadCommand.supply_fan_speed,
             None,
             None,
+            "supply_fan_speed",
         ],
         [
             "Danfoss Air Dial Battery",
@@ -92,12 +107,21 @@ def setup_platform(
             ReadCommand.battery_percent,
             SensorDeviceClass.BATTERY,
             None,
+            "dial_battery",
         ],
     ]
 
     add_entities(
         (
-            DanfossAir(data, sensor[0], sensor[1], sensor[2], sensor[3], sensor[4])
+            DanfossAir(
+                data,
+                sensor[0],
+                sensor[1],
+                sensor[2],
+                sensor[3],
+                sensor[4],
+                sensor[5],
+            )
             for sensor in sensors
         ),
         True,
@@ -107,10 +131,13 @@ def setup_platform(
 class DanfossAir(SensorEntity):
     """Representation of a Sensor."""
 
-    def __init__(self, data, name, sensor_unit, sensor_type, device_class, state_class):
+    def __init__(
+        self, data, name, sensor_unit, sensor_type, device_class, state_class, key
+    ):
         """Initialize the sensor."""
         self._data = data
         self._attr_name = name
+        self._attr_unique_id = key
         self._attr_native_value = None
         self._type = sensor_type
         self._attr_native_unit_of_measurement = sensor_unit

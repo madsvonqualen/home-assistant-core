@@ -30,23 +30,26 @@ def setup_platform(
             ReadCommand.boost,
             UpdateCommand.boost_activate,
             UpdateCommand.boost_deactivate,
+            "boost",
         ],
         [
             "Danfoss Air Bypass",
             ReadCommand.bypass,
             UpdateCommand.bypass_activate,
             UpdateCommand.bypass_deactivate,
+            "bypass",
         ],
         [
             "Danfoss Air Automatic Bypass",
             ReadCommand.automatic_bypass,
             UpdateCommand.automatic_bypass_activate,
             UpdateCommand.automatic_bypass_deactivate,
+            "automatic_bypass",
         ],
     ]
 
     add_entities(
-        DanfossAir(data, switch[0], switch[1], switch[2], switch[3])
+        DanfossAir(data, switch[0], switch[1], switch[2], switch[3], switch[4])
         for switch in switches
     )
 
@@ -54,10 +57,11 @@ def setup_platform(
 class DanfossAir(SwitchEntity):
     """Representation of a Danfoss Air HRV Switch."""
 
-    def __init__(self, data, name, state_command, on_command, off_command):
+    def __init__(self, data, name, state_command, on_command, off_command, key):
         """Initialize the switch."""
         self._data = data
         self._attr_name = name
+        self._attr_unique_id = key
         self._state_command = state_command
         self._on_command = on_command
         self._off_command = off_command
